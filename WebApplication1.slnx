@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="WebApplication1.Application/WebApplication1.Application.csproj" Id="ec519ecf-307c-4669-9a44-8813eba945cc" />
+  <Project Path="WebApplication1.Domain/WebApplication1.Domain.csproj" Id="713a963a-e5f6-4a95-af1e-89c4c2bc4c78" />
+  <Project Path="WebApplication1.Infrastructure/WebApplication1.Infrastructure.csproj" Id="85aa24fa-712d-4edc-9559-23022b0e0db2" />
+  <Project Path="WebApplication1/app_homework.csproj">
+    <BuildDependency Project="WebApplication1.Application/WebApplication1.Application.csproj" />
+    <BuildDependency Project="WebApplication1.Infrastructure/WebApplication1.Infrastructure.csproj" />
+  </Project>
+</Solution>
