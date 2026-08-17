@@ -35,7 +35,5 @@ namespace WebApplication1.Domain.Entities
         public int? ManagerId { get; set; }
         public Employee Manager { get; set; }
         public ICollection<Employee> Employees { get; set; }
-
-        public User User { get; set; }
     }
 }

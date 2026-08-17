@@ -7,9 +7,9 @@ using WebApplication1.Domain.Entities;
 
 namespace WebApplication1.Application.Interfaces
 {
-    public interface IUserService
+    public interface IJwtService
     {
-        void Add(User user);
-        User CheckUserNameAndPassword(string userName, string password);
+        string GenerateToken(ApplicationUser user);
     }
+
 }
