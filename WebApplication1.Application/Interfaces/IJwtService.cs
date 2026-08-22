@@ -9,7 +9,7 @@ namespace WebApplication1.Application.Interfaces
 {
     public interface IJwtService
     {
-        string GenerateToken(ApplicationUser user);
+        Task<string> GenerateToken(ApplicationUser user);
     }
 
 }

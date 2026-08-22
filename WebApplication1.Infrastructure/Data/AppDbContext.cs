@@ -15,6 +15,11 @@ namespace WebApplication1.Infrastructure.Data
         public DbSet<Company> Companies { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Employee> Employees { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
+        public DbSet<UserPermission> UserPermissions { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -30,6 +35,41 @@ namespace WebApplication1.Infrastructure.Data
             .HasOne(u => u.Employee)
             .WithOne()
             .HasForeignKey<ApplicationUser>(u => u.EmployeeId);
+
+
+            modelBuilder.Entity<RolePermission>()
+                 .HasKey(rp => new
+                 {
+                     rp.RoleId,
+                     rp.PermissionId
+                 });
+
+            modelBuilder.Entity<RolePermission>()
+            .HasOne(rp => rp.Role)
+            .WithMany()
+            .HasForeignKey(rp => rp.RoleId);
+
+            modelBuilder.Entity<RolePermission>()
+            .HasOne(rp => rp.Permission)
+            .WithMany(p => p.RolePermissions)
+            .HasForeignKey(rp => rp.PermissionId);
+
+            modelBuilder.Entity<UserPermission>()
+            .HasOne(up => up.User)
+            .WithMany(u => u.UserPermissions)
+            .HasForeignKey(up => up.UserId);
+
+            modelBuilder.Entity<UserPermission>()
+            .HasOne(up => up.Permission)
+            .WithMany(p => p.UserPermissions)
+            .HasForeignKey(up => up.PermissionId);
+
+            modelBuilder.Entity<UserPermission>()
+            .HasKey(up => new
+             {
+                  up.UserId,
+                  up.PermissionId
+             });
 
         }
     }

@@ -9,12 +9,13 @@ using WebApplication1.Application.Settings;
 using WebApplication1.Domain.Entities;
 using WebApplication1.Domain.Interfaces;
 using WebApplication1.Infrastructure.Data;
+using WebApplication1.Infrastructure.Identity;
 using WebApplication1.Infrastructure.Repositories;
 
 internal class Program
 {
-    private static void Main(string[] args)
-    {
+     private static async Task Main(string[] args)
+     {
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Services.AddControllers();
@@ -22,9 +23,14 @@ internal class Program
         builder.Services.AddDbContext<AppDbContext>();
 
         builder.Services
-            .AddIdentity<ApplicationUser, IdentityRole<long>>()
-            .AddEntityFrameworkStores<AppDbContext>()
-            .AddDefaultTokenProviders();
+        .AddIdentity<ApplicationUser, IdentityRole<long>>(options =>
+        {
+           options.Lockout.MaxFailedAccessAttempts = 3;
+           options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromDays(365);
+           options.Lockout.AllowedForNewUsers = true;
+         })
+        .AddEntityFrameworkStores<AppDbContext>()
+        .AddDefaultTokenProviders();
 
         // Swagger
         builder.Services.AddEndpointsApiExplorer();
@@ -58,40 +64,51 @@ internal class Program
         builder.Services
         .AddAuthentication(options =>
         {
-          options.DefaultAuthenticateScheme =
-            JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultAuthenticateScheme =
+              JwtBearerDefaults.AuthenticationScheme;
 
-          options.DefaultChallengeScheme =
-            JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme =
+              JwtBearerDefaults.AuthenticationScheme;
         })
         .AddJwtBearer(options =>
         {
-           var jwtSettings = builder.Configuration
-            .GetSection("Jwt")
-            .Get<JwtSettings>()!;
+            var jwtSettings = builder.Configuration
+             .GetSection("Jwt")
+             .Get<JwtSettings>()!;
 
-          options.TokenValidationParameters =
-            new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidIssuer = jwtSettings.Issuer,
+            options.TokenValidationParameters =
+              new TokenValidationParameters
+              {
+                  ValidateIssuer = true,
+                  ValidIssuer = jwtSettings.Issuer,
 
-                ValidateAudience = true,
-                ValidAudience = jwtSettings.Audience,
+                  ValidateAudience = true,
+                  ValidAudience = jwtSettings.Audience,
 
-                ValidateLifetime = true,
+                  ValidateLifetime = true,
 
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(jwtSettings.Key))
-            };
+                  ValidateIssuerSigningKey = true,
+                  IssuerSigningKey = new SymmetricSecurityKey(
+                      Encoding.UTF8.GetBytes(jwtSettings.Key))
+              };
         });
 
         builder.Services.AddAuthorization();
 
-        builder.Services.AddAuthorization();
-
         var app = builder.Build();
+
+        using (var scope = app.Services.CreateScope())
+        {
+            var roleManager = scope.ServiceProvider
+                .GetRequiredService<RoleManager<IdentityRole<long>>>();
+
+            await IdentitySeederRole.SeedRolesAsync(roleManager);
+
+            var context = scope.ServiceProvider
+                .GetRequiredService<AppDbContext>();
+
+            await PermissionSeeder.SeedAsync(context);
+        }
 
         // Swagger
         app.UseSwagger();

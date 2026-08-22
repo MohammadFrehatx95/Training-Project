@@ -11,8 +11,10 @@ namespace WebApplication1.Domain.Entities
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
-
+        public string NationalNumber { get; set; }
+        public DateTime DateOfBirth { get; set; }
         public int EmployeeId { get; set; }
         public Employee Employee { get; set; }
+        public ICollection<UserPermission> UserPermissions { get; set; } = new List<UserPermission>();
     }
 }
